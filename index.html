@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Pocket Medical Record</title>
+<style>
+:root{
+  --blue-950:#12365a; --blue-800:#1e5d91; --blue-600:#3184bd; --blue-400:#76b8df;
+  --blue-200:#cce8f7; --blue-100:#eaf7fd; --blue-50:#f6fbfe;
+  --ink:#18324a; --muted:#6b8195; --white:#fff; --line:#dcebf4;
+  --shadow:0 18px 45px rgba(25,88,130,.12); --radius:22px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;color:var(--ink);
+background:linear-gradient(145deg,#f8fcff 0%,#eaf7fd 45%,#f7fbff 100%);min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1240px;margin:auto;padding:28px 20px 50px}
+.hero{background:linear-gradient(135deg,#164b78,#338ac0 60%,#86c9e8);color:white;border-radius:30px;padding:34px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:280px;height:280px;border-radius:50%;right:-90px;top:-110px;background:rgba(255,255,255,.13)}
+.topbar{display:flex;justify-content:space-between;gap:20px;align-items:center;position:relative;z-index:1}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:54px;height:54px;border-radius:17px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:28px}
+h1{font-size:clamp(25px,4vw,40px);margin:0 0 5px}
+.subtitle{opacity:.88;margin:0}
+.lang select{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:#fff;padding:11px 15px;border-radius:13px;outline:none}
+.lang option{color:#17324a;background:#fff}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:28px;position:relative;z-index:1}
+.quick{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:17px;padding:15px}
+.quick small{display:block;opacity:.75;margin-bottom:5px}.quick strong{font-size:17px}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:22px;margin-top:22px}
+.nav{background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--radius);padding:12px;height:max-content;position:sticky;top:18px;box-shadow:0 10px 30px rgba(50,110,145,.06)}
+.nav button{width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:13px 14px;border-radius:13px;margin:2px 0}
+.nav button:hover,.nav button.active{background:var(--blue-100);color:var(--blue-800);font-weight:700}
+.content{min-width:0}
+.card{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:var(--radius);padding:25px;margin-bottom:18px;box-shadow:0 10px 30px rgba(50,110,145,.06)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.card h2{font-size:21px;margin:0}.card p.desc{color:var(--muted);margin:5px 0 0;font-size:14px}
+.badge{background:var(--blue-100);color:var(--blue-800);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.field label{display:block;font-size:13px;color:var(--muted);margin:0 0 7px;font-weight:700}
+input,textarea,select.field-input{width:100%;border:1px solid var(--line);background:var(--blue-50);border-radius:12px;padding:11px 12px;color:var(--ink);outline:none}
+textarea{min-height:90px;resize:vertical}
+input:focus,textarea:focus,select.field-input:focus{border-color:var(--blue-400);box-shadow:0 0 0 3px rgba(118,184,223,.18)}
+.full{grid-column:1/-1}
+.list{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:1.1fr 1fr 1fr auto;gap:9px;align-items:center}
+.row input{min-width:0}
+.icon-btn{width:40px;height:40px;border:0;border-radius:11px;background:#fff0f0;color:#b64b5b}
+.add{border:1px dashed #9bc9e2;background:var(--blue-50);color:var(--blue-800);padding:10px 14px;border-radius:12px;font-weight:700}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.primary,.secondary{border:0;border-radius:13px;padding:12px 17px;font-weight:800}
+.primary{background:var(--blue-800);color:#fff}.secondary{background:var(--blue-100);color:var(--blue-800)}
+.alert{background:#fff8e9;border:1px solid #f2dfb2;color:#76591b;padding:13px 15px;border-radius:13px;margin-bottom:15px}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.nav{position:static;display:flex;overflow:auto;gap:5px}.nav button{white-space:nowrap;width:auto}.hero-grid{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr 1fr}.full{grid-column:auto}}
+@media print{body{background:#fff}.nav,.actions,.lang{display:none!important}.layout{display:block}.card,.hero{box-shadow:none;border:1px solid #ddd}.hero{color:#000;background:#fff}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="hero">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">✚</div>
+      <div><h1 data-i18n="title">我的隨身電子病歷</h1><p class="subtitle" data-i18n="subtitle">Pocket Personal Medical Record</p></div>
+    </div>
+    <div class="lang"><select id="language" aria-label="Language">
+      <option value="zh-TW">繁體中文</option><option value="en">English</option><option value="ko">한국어</option>
+      <option value="ja">日本語</option><option value="vi">Tiếng Việt</option>
+    </select></div>
+  </div>
+  <div class="hero-grid">
+    <div class="quick"><small data-i18n="emergency">緊急醫療資訊</small><strong id="quickBlood">—</strong></div>
+    <div class="quick"><small data-i18n="allergy">過敏</small><strong id="quickAllergy">—</strong></div>
+    <div class="quick"><small data-i18n="contact">緊急聯絡人</small><strong id="quickContact">—</strong></div>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="nav" id="nav">
+  <button class="active" data-target="basic" data-i18n="navBasic">基本資料</button>
+  <button data-target="conditions" data-i18n="navConditions">疾病史</button>
+  <button data-target="surgery" data-i18n="navSurgery">手術史</button>
+  <button data-target="meds" data-i18n="navMeds">用藥史</button>
+  <button data-target="family" data-i18n="navFamily">家族史</button>
+  <button data-target="allergy" data-i18n="navAllergy">過敏／疫苗</button>
+  <button data-target="social" data-i18n="navSocial">生活／社會史</button>
+  <button data-target="emergency" data-i18n="navEmergency">緊急資訊</button>
+  <button data-target="notes" data-i18n="navNotes">其他備註</button>
+</nav>
+
+<main class="content">
+<section class="card" id="basic">
+  <div class="card-head"><div><h2 data-i18n="basicTitle">基本資料</h2><p class="desc" data-i18n="basicDesc">跨國就醫時可快速提供身份與基本健康資訊。</p></div><span class="badge">01</span></div>
+  <div class="grid">
+    <div class="field"><label data-i18n="name">姓名</label><input id="name" placeholder="Name / 姓名"></div>
+    <div class="field"><label data-i18n="dob">出生日期</label><input id="dob" type="date"></div>
+    <div class="field"><label data-i18n="gender">性別</label><select class="field-input" id="gender"><option value="">—</option><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option></select></div>
+    <div class="field"><label data-i18n="blood">血型</label><select class="field-input" id="blood"><option value="">—</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option><option>O+</option><option>O−</option><option>Unknown</option></select></div>
+    <div class="field"><label data-i18n="nationality">國籍／居住地</label><input id="nationality"></div>
+    <div class="field"><label data-i18n="languageKnown">主要語言</label><input id="languageKnown"></div>
+    <div class="field full"><label data-i18n="idNote">醫療識別資訊（可選）</label><input id="idNote" placeholder="例如：健保／醫療識別卡資訊（請避免填寫不必要的敏感資料）"></div>
+  </div>
+</section>
+
+<section class="card" id="conditions">
+  <div class="card-head"><div><h2 data-i18n="conditionsTitle">疾病史／診斷史</h2><p class="desc" data-i18n="conditionsDesc">記錄曾被醫師診斷的重要疾病、日期與狀態。</p></div><span class="badge">02</span></div>
+  <div id="conditionsList" class="list"></div><button class="add" onclick="addRow('conditionsList',3)" data-i18n="addCondition">＋ 新增疾病</button>
+</section>
+
+<section class="card" id="surgery">
+  <div class="card-head"><div><h2 data-i18n="surgeryTitle">手術／住院史</h2><p class="desc" data-i18n="surgeryDesc">包含手術、重大住院與相關併發症。</p></div><span class="badge">03</span></div>
+  <div id="surgeryList" class="list"></div><button class="add" onclick="addRow('surgeryList',3)" data-i18n="addSurgery">＋ 新增手術／住院</button>
+</section>
+
+<section class="card" id="meds">
+  <div class="card-head"><div><h2 data-i18n="medsTitle">用藥史／目前用藥</h2><p class="desc" data-i18n="medsDesc">記錄藥名、劑量、頻率與用途；就醫時請讓醫療人員確認。</p></div><span class="badge">04</span></div>
+  <div id="medsList" class="list"></div><button class="add" onclick="addRow('medsList',4)" data-i18n="addMed">＋ 新增藥物</button>
+</section>
+
+<section class="card" id="family">
+  <div class="card-head"><div><h2 data-i18n="familyTitle">家族病史</h2><p class="desc" data-i18n="familyDesc">記錄直系或近親的重要疾病與家族健康風險。</p></div><span class="badge">05</span></div>
+  <div id="familyList" class="list"></div><button class="add" onclick="addRow('familyList',3)" data-i18n="addFamily">＋ 新增家族病史</button>
+</section>
+
+<section class="card" id="allergy">
+  <div class="card-head"><div><h2 data-i18n="allergyTitle">過敏史／疫苗</h2><p class="desc" data-i18n="allergyDesc">過敏資訊是跨國急診就醫時特別重要的一項。</p></div><span class="badge">06</span></div>
+  <div class="grid">
+    <div class="field full"><label data-i18n="allergyLabel">藥物／食物／其他過敏</label><textarea id="allergies" placeholder="例如：藥物、食物、乳膠、環境過敏…"></textarea></div>
+    <div class="field"><label data-i18n="reaction">過敏反應／嚴重程度</label><input id="reaction"></div>
+    <div class="field"><label data-i18n="vaccines">重要疫苗／接種日期</label><textarea id="vaccines"></textarea></div>
+  </div>
+</section>
+
+<section class="card" id="social">
+  <div class="card-head"><div><h2 data-i18n="socialTitle">生活／社會史</h2><p class="desc" data-i18n="socialDesc">可依需要提供醫療人員的生活與暴露資訊。</p></div><span class="badge">07</span></div>
+  <div class="grid">
+    <div class="field"><label data-i18n="occupation">職業／學生身分</label><input id="occupation"></div>
+    <div class="field"><label data-i18n="countryHistory">長期居住／旅遊史</label><input id="countryHistory"></div>
+    <div class="field full"><label data-i18n="lifestyle">生活習慣／特殊暴露</label><textarea id="lifestyle" placeholder="例如：運動、飲食、工作環境等與醫療相關資訊"></textarea></div>
+  </div>
+</section>
+
+<section class="card" id="emergency">
+  <div class="card-head"><div><h2 data-i18n="emergencyTitle">緊急醫療資訊</h2><p class="desc" data-i18n="emergencyDesc">讓醫療人員在無法完整溝通時快速取得必要資訊。</p></div><span class="badge">08</span></div>
+  <div class="grid">
+    <div class="field"><label data-i18n="contactName">緊急聯絡人</label><input id="contactName"></div>
+    <div class="field"><label data-i18n="contactPhone">聯絡電話</label><input id="contactPhone" type="tel"></div>
+    <div class="field"><label data-i18n="relationship">關係</label><input id="relationship"></div>
+    <div class="field"><label data-i18n="doctor">主要醫師／診所</label><input id="doctor"></div>
+    <div class="field full"><label data-i18n="emergencyNote">緊急備註</label><textarea id="emergencyNote"></textarea></div>
+  </div>
+</section>
+
+<section class="card" id="notes">
+  <div class="card-head"><div><h2 data-i18n="notesTitle">其他醫療備註</h2><p class="desc" data-i18n="notesDesc">可補充醫療器材、特殊需求、重要檢查結果或其他資訊。</p></div><span class="badge">09</span></div>
+  <div class="field"><textarea id="notes" placeholder="Notes / 備註"></textarea></div>
+</section>
+
+<div class="alert" data-i18n="privacy">提醒：這是一個純前端靜態範例。資料預設只保存在本機瀏覽器，不會自動上傳伺服器。請勿輸入不必要的高度敏感資訊；正式醫療用途仍應採用符合當地法規的安全系統。</div>
+<div class="actions">
+  <button class="primary" onclick="saveData()" data-i18n="save">儲存到本機</button>
+  <button class="secondary" onclick="loadData()" data-i18n="load">載入資料</button>
+  <button class="secondary" onclick="clearData()" data-i18n="clear">清除本機資料</button>
+  <button class="secondary" onclick="window.print()" data-i18n="print">列印／另存 PDF</button>
+</div>
+</main></div>
+<footer class="footer">Pocket Medical Record · Static HTML / CSS / JavaScript</footer>
+</div>
+
+<script>
+const translations={
+"zh-TW":{title:"我的隨身電子病歷",subtitle:"Pocket Personal Medical Record",emergency:"緊急醫療資訊",allergy:"過敏",contact:"緊急聯絡人",navBasic:"基本資料",navConditions:"疾病史",navSurgery:"手術史",navMeds:"用藥史",navFamily:"家族史",navAllergy:"過敏／疫苗",navSocial:"生活／社會史",navEmergency:"緊急資訊",navNotes:"其他備註",basicTitle:"基本資料",basicDesc:"跨國就醫時可快速提供身份與基本健康資訊。",name:"姓名",dob:"出生日期",gender:"性別",blood:"血型",nationality:"國籍／居住地",languageKnown:"主要語言",idNote:"醫療識別資訊（可選）",conditionsTitle:"疾病史／診斷史",conditionsDesc:"記錄曾被醫師診斷的重要疾病、日期與狀態。",addCondition:"＋ 新增疾病",surgeryTitle:"手術／住院史",surgeryDesc:"包含手術、重大住院與相關併發症。",addSurgery:"＋ 新增手術／住院",medsTitle:"用藥史／目前用藥",medsDesc:"記錄藥名、劑量、頻率與用途；就醫時請讓醫療人員確認。",addMed:"＋ 新增藥物",familyTitle:"家族病史",familyDesc:"記錄直系或近親的重要疾病與家族健康風險。",addFamily:"＋ 新增家族病史",allergyTitle:"過敏史／疫苗",allergyDesc:"過敏資訊是跨國急診就醫時特別重要的一項。",allergyLabel:"藥物／食物／其他過敏",reaction:"過敏反應／嚴重程度",vaccines:"重要疫苗／接種日期",socialTitle:"生活／社會史",socialDesc:"可依需要提供醫療人員的生活與暴露資訊。",occupation:"職業／學生身分",countryHistory:"長期居住／旅遊史",lifestyle:"生活習慣／特殊暴露",emergencyTitle:"緊急醫療資訊",emergencyDesc:"讓醫療人員在無法完整溝通時快速取得必要資訊。",contactName:"緊急聯絡人",contactPhone:"聯絡電話",relationship:"關係",doctor:"主要醫師／診所",emergencyNote:"緊急備註",notesTitle:"其他醫療備註",notesDesc:"可補充醫療器材、特殊需求、重要檢查結果或其他資訊。",privacy:"提醒：這是一個純前端靜態範例。資料預設只保存在本機瀏覽器，不會自動上傳伺服器。請勿輸入不必要的高度敏感資訊；正式醫療用途仍應採用符合當地法規的安全系統。",save:"儲存到本機",load:"載入資料",clear:"清除本機資料",print:"列印／另存 PDF"},
+en:{title:"My Pocket Medical Record",subtitle:"Pocket Personal Medical Record",emergency:"Emergency Medical Info",allergy:"Allergies",contact:"Emergency Contact",navBasic:"Basic Info",navConditions:"Medical History",navSurgery:"Surgery History",navMeds:"Medication History",navFamily:"Family History",navAllergy:"Allergies / Vaccines",navSocial:"Social History",navEmergency:"Emergency Info",navNotes:"Other Notes",basicTitle:"Basic Information",basicDesc:"Essential information for care across countries.",name:"Full Name",dob:"Date of Birth",gender:"Gender",blood:"Blood Type",nationality:"Nationality / Residence",languageKnown:"Primary Language",idNote:"Medical Identifier (optional)",conditionsTitle:"Medical / Diagnostic History",conditionsDesc:"Important diagnoses, dates, and current status.",addCondition:"＋ Add Condition",surgeryTitle:"Surgery / Hospitalization",surgeryDesc:"Include surgeries, major admissions, and complications.",addSurgery:"＋ Add Surgery / Admission",medsTitle:"Medication History / Current Medications",medsDesc:"Record name, dose, frequency, and purpose; confirm with clinicians.",addMed:"＋ Add Medication",familyTitle:"Family Medical History",familyDesc:"Important diseases and health risks in close relatives.",addFamily:"＋ Add Family History",allergyTitle:"Allergies / Vaccines",allergyDesc:"Allergy information is especially important in emergency care.",allergyLabel:"Drug / Food / Other Allergies",reaction:"Reaction / Severity",vaccines:"Important Vaccines / Dates",socialTitle:"Social / Lifestyle History",socialDesc:"Provide relevant lifestyle and exposure information.",occupation:"Occupation / Student Status",countryHistory:"Residence / Travel History",lifestyle:"Lifestyle / Relevant Exposures",emergencyTitle:"Emergency Medical Information",emergencyDesc:"Quick access to essential information when communication is difficult.",contactName:"Emergency Contact",contactPhone:"Phone",relationship:"Relationship",doctor:"Primary Doctor / Clinic",emergencyNote:"Emergency Notes",notesTitle:"Other Medical Notes",notesDesc:"Medical devices, special needs, test results, or other relevant details.",privacy:"Privacy note: This is a static front-end demo. Data is stored locally in your browser and is not automatically uploaded. Avoid unnecessary highly sensitive information; real clinical use requires a secure, legally compliant system.",save:"Save Locally",load:"Load Data",clear:"Clear Local Data",print:"Print / Save PDF"},
+ko:{title:"나의 휴대용 전자 의료기록",subtitle:"Pocket Personal Medical Record",emergency:"응급 의료 정보",allergy:"알레르기",contact:"비상 연락처",navBasic:"기본 정보",navConditions:"질병력",navSurgery:"수술력",navMeds:"복약력",navFamily:"가족력",navAllergy:"알레르기 / 예방접종",navSocial:"사회력 / 생활습관",navEmergency:"응급 정보",navNotes:"기타 메모",basicTitle:"기본 정보",basicDesc:"해외 진료 시 필요한 기본 건강 정보를 빠르게 제공합니다.",name:"이름",dob:"생년월일",gender:"성별",blood:"혈액형",nationality:"국적 / 거주지",languageKnown:"주 사용 언어",idNote:"의료 식별 정보(선택)",conditionsTitle:"질병력 / 진단력",conditionsDesc:"주요 진단, 날짜 및 현재 상태를 기록합니다.",addCondition:"＋ 질병 추가",surgeryTitle:"수술력 / 입원력",surgeryDesc:"수술, 주요 입원 및 합병증을 기록합니다.",addSurgery:"＋ 수술 / 입원 추가",medsTitle:"복약력 / 현재 복용약",medsDesc:"약 이름, 용량, 횟수 및 목적을 기록합니다.",addMed:"＋ 약물 추가",familyTitle:"가족력",familyDesc:"가까운 가족의 주요 질환과 건강 위험을 기록합니다.",addFamily:"＋ 가족력 추가",allergyTitle:"알레르기 / 예방접종",allergyDesc:"응급 진료에서 특히 중요한 정보입니다.",allergyLabel:"약물 / 음식 / 기타 알레르기",reaction:"반응 / 중증도",vaccines:"주요 예방접종 / 날짜",socialTitle:"사회력 / 생활습관",socialDesc:"관련 생활습관 및 노출 정보를 기록합니다.",occupation:"직업 / 학생",countryHistory:"거주 / 여행력",lifestyle:"생활습관 / 관련 노출",emergencyTitle:"응급 의료 정보",emergencyDesc:"의사소통이 어려운 상황에서도 필요한 정보를 제공합니다.",contactName:"비상 연락처",contactPhone:"전화번호",relationship:"관계",doctor:"주치의 / 병원",emergencyNote:"응급 메모",notesTitle:"기타 의료 메모",notesDesc:"의료기기, 특별한 필요, 검사 결과 등을 기록합니다.",privacy:"개인정보 안내: 정적 프런트엔드 예제입니다. 데이터는 브라우저에만 저장되며 자동 업로드되지 않습니다. 불필요한 민감정보 입력을 피하고, 실제 의료용은 보안 및 관련 법규를 충족하는 시스템을 사용하세요.",save:"로컬 저장",load:"데이터 불러오기",clear:"로컬 데이터 삭제",print:"인쇄 / PDF 저장"},
+ja:{title:"携帯用パーソナル電子診療記録",subtitle:"Pocket Personal Medical Record",emergency:"緊急医療情報",allergy:"アレルギー",contact:"緊急連絡先",navBasic:"基本情報",navConditions:"既往歴",navSurgery:"手術歴",navMeds:"服薬歴",navFamily:"家族歴",navAllergy:"アレルギー / ワクチン",navSocial:"生活・社会歴",navEmergency:"緊急情報",navNotes:"その他メモ",basicTitle:"基本情報",basicDesc:"海外受診時に必要な基本情報をすばやく提示できます。",name:"氏名",dob:"生年月日",gender:"性別",blood:"血液型",nationality:"国籍 / 居住地",languageKnown:"主な言語",idNote:"医療識別情報（任意）",conditionsTitle:"既往歴・診断歴",conditionsDesc:"重要な診断、日付、現在の状態を記録します。",addCondition:"＋ 疾患を追加",surgeryTitle:"手術歴・入院歴",surgeryDesc:"手術、重大な入院、合併症を記録します。",addSurgery:"＋ 手術・入院を追加",medsTitle:"服薬歴・現在の薬",medsDesc:"薬名、用量、頻度、目的を記録します。",addMed:"＋ 薬を追加",familyTitle:"家族歴",familyDesc:"近親者の重要な疾患や健康リスクを記録します。",addFamily:"＋ 家族歴を追加",allergyTitle:"アレルギー・ワクチン",allergyDesc:"救急受診で特に重要な情報です。",allergyLabel:"薬・食物・その他のアレルギー",reaction:"反応・重症度",vaccines:"主なワクチン・接種日",socialTitle:"生活・社会歴",socialDesc:"医療に関係する生活習慣や曝露情報を記録します。",occupation:"職業 / 学生",countryHistory:"居住歴 / 渡航歴",lifestyle:"生活習慣 / 関連曝露",emergencyTitle:"緊急医療情報",emergencyDesc:"意思疎通が難しい場合でも必要な情報を確認できます。",contactName:"緊急連絡先",contactPhone:"電話番号",relationship:"続柄",doctor:"主治医 / クリニック",emergencyNote:"緊急メモ",notesTitle:"その他の医療メモ",notesDesc:"医療機器、特別な配慮、検査結果などを記録します。",privacy:"プライバシー: これは静的なフロントエンドのデモです。データはブラウザ内にのみ保存され、自動アップロードされません。不要な機密情報は入力せず、実際の医療利用には安全で法令に準拠したシステムを使用してください。",save:"ローカル保存",load:"データ読込",clear:"ローカルデータ削除",print:"印刷 / PDF保存"},
+vi:{title:"Hồ sơ bệnh án cá nhân bỏ túi",subtitle:"Pocket Personal Medical Record",emergency:"Thông tin y tế khẩn cấp",allergy:"Dị ứng",contact:"Liên hệ khẩn cấp",navBasic:"Thông tin cơ bản",navConditions:"Tiền sử bệnh",navSurgery:"Tiền sử phẫu thuật",navMeds:"Tiền sử dùng thuốc",navFamily:"Tiền sử gia đình",navAllergy:"Dị ứng / Vắc-xin",navSocial:"Xã hội / Lối sống",navEmergency:"Thông tin khẩn cấp",navNotes:"Ghi chú khác",basicTitle:"Thông tin cơ bản",basicDesc:"Cung cấp nhanh thông tin sức khỏe khi khám chữa bệnh ở nước ngoài.",name:"Họ và tên",dob:"Ngày sinh",gender:"Giới tính",blood:"Nhóm máu",nationality:"Quốc tịch / Nơi cư trú",languageKnown:"Ngôn ngữ chính",idNote:"Mã nhận dạng y tế (tùy chọn)",conditionsTitle:"Tiền sử bệnh / Chẩn đoán",conditionsDesc:"Ghi lại các chẩn đoán quan trọng, ngày và tình trạng hiện tại.",addCondition:"＋ Thêm bệnh",surgeryTitle:"Phẫu thuật / Nhập viện",surgeryDesc:"Bao gồm phẫu thuật, nhập viện lớn và biến chứng.",addSurgery:"＋ Thêm phẫu thuật / nhập viện",medsTitle:"Tiền sử / Thuốc đang dùng",medsDesc:"Ghi tên thuốc, liều, tần suất và mục đích sử dụng.",addMed:"＋ Thêm thuốc",familyTitle:"Tiền sử gia đình",familyDesc:"Các bệnh quan trọng và nguy cơ sức khỏe ở người thân.",addFamily:"＋ Thêm tiền sử gia đình",allergyTitle:"Dị ứng / Vắc-xin",allergyDesc:"Thông tin đặc biệt quan trọng khi cấp cứu.",allergyLabel:"Dị ứng thuốc / thực phẩm / khác",reaction:"Phản ứng / Mức độ",vaccines:"Vắc-xin quan trọng / Ngày tiêm",socialTitle:"Xã hội / Lối sống",socialDesc:"Ghi lại lối sống và phơi nhiễm có liên quan.",occupation:"Nghề nghiệp / Học sinh",countryHistory:"Lịch sử cư trú / Du lịch",lifestyle:"Lối sống / Phơi nhiễm liên quan",emergencyTitle:"Thông tin y tế khẩn cấp",emergencyDesc:"Truy cập nhanh thông tin cần thiết khi khó giao tiếp.",contactName:"Liên hệ khẩn cấp",contactPhone:"Điện thoại",relationship:"Mối quan hệ",doctor:"Bác sĩ / Phòng khám chính",emergencyNote:"Ghi chú khẩn cấp",notesTitle:"Ghi chú y tế khác",notesDesc:"Thiết bị y tế, nhu cầu đặc biệt, kết quả xét nghiệm hoặc thông tin liên quan.",privacy:"Lưu ý riêng tư: Đây là bản demo tĩnh chạy ở phía trình duyệt. Dữ liệu chỉ được lưu trong trình duyệt và không tự động tải lên máy chủ. Tránh nhập thông tin nhạy cảm không cần thiết; sử dụng hệ thống an toàn và tuân thủ pháp luật cho mục đích y tế thực tế.",save:"Lưu cục bộ",load:"Tải dữ liệu",clear:"Xóa dữ liệu cục bộ",print:"In / Lưu PDF"}
+};
+const fieldMap=["name","dob","gender","blood","nationality","languageKnown","idNote","allergies","reaction","vaccines","occupation","countryHistory","lifestyle","contactName","contactPhone","relationship","doctor","emergencyNote","notes"];
+function applyLanguage(lang){
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(translations[lang][k])el.textContent=translations[lang][k]});
+  updateQuick();
+}
+document.getElementById("language").addEventListener("change",e=>{localStorage.setItem("pmr-lang",e.target.value);applyLanguage(e.target.value)});
+function rowTemplate(type){
+  const labels={
+    3: ["項目 / Item","日期 / Date","備註 / Notes"],
+    4: ["藥名 / Medication","劑量 / Dose","頻率 / Frequency","用途 / Purpose"]
+  };
+  return `<div class="row">${labels[type].map((x,i)=>`<input placeholder="${x}">`).join("")}<button class="icon-btn" onclick="this.parentElement.remove();saveData()">×</button></div>`;
+}
+function addRow(id,type){document.getElementById(id).insertAdjacentHTML("beforeend",rowTemplate(type));saveData()}
+function serializeRows(id){return [...document.querySelectorAll("#"+id+" .row")].map(r=>[...r.querySelectorAll("input")].map(i=>i.value))}
+function restoreRows(id,type,data=[]){
+  const box=document.getElementById(id);box.innerHTML="";
+  (data.length?data:[Array(type).fill("")]).forEach(vals=>{
+    box.insertAdjacentHTML("beforeend",rowTemplate(type));
+    const r=box.lastElementChild;[...r.querySelectorAll("input")].forEach((i,n)=>i.value=vals[n]||"");
+  });
+}
+function collect(){
+  const data={fields:{},conditions:serializeRows("conditionsList"),surgery:serializeRows("surgeryList"),meds:serializeRows("medsList"),family:serializeRows("familyList")};
+  fieldMap.forEach(id=>data.fields[id]=document.getElementById(id).value);return data;
+}
+function saveData(){localStorage.setItem("pocket-medical-record",JSON.stringify(collect()));updateQuick();alert("Saved locally / 已儲存於本機");}
+function loadData(){
+  const raw=localStorage.getItem("pocket-medical-record");if(!raw){alert("No local data / 尚無本機資料");return}
+  const d=JSON.parse(raw);fieldMap.forEach(id=>{if(d.fields?.[id]!=null)document.getElementById(id).value=d.fields[id]});
+  restoreRows("conditionsList",3,d.conditions);restoreRows("surgeryList",3,d.surgery);restoreRows("medsList",4,d.meds);restoreRows("familyList",3,d.family);updateQuick();
+}
+function clearData(){if(confirm("Clear all locally stored medical-record data? / 確定清除全部本機資料？")){localStorage.removeItem("pocket-medical-record");location.reload()}}
+function updateQuick(){
+  document.getElementById("quickBlood").textContent=document.getElementById("blood").value||"—";
+  document.getElementById("quickAllergy").textContent=(document.getElementById("allergies").value||"—").split("\n")[0].slice(0,28);
+  document.getElementById("quickContact").textContent=document.getElementById("contactName").value||"—";
+}
+document.querySelectorAll("input,textarea,select").forEach(el=>el.addEventListener("input",updateQuick));
+document.querySelectorAll(".nav button").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.getElementById(btn.dataset.target).scrollIntoView({behavior:"smooth",block:"start"})}));
+const demoData={fields:{name:"林安晴",dob:"2004-06-18",gender:"Female",blood:"O+",nationality:"Taiwan",languageKnown:"中文、English、日本語",idNote:"示範資料 Demo Only",allergies:"青黴素（示範）\n花生：輕微不適（示範）",reaction:"皮膚紅疹；目前無嚴重反應紀錄",vaccines:"COVID-19：2024-10\n流感：2025-10\n破傷風：2022-05",occupation:"大學生",countryHistory:"台灣；日本短期旅遊（示範）",lifestyle:"規律散步與游泳；無特殊職業暴露（示範）",contactName:"林先生（示範）",contactPhone:"0900-123-456",relationship:"家人",doctor:"晴川家庭醫學診所（示範）",emergencyNote:"若發生緊急狀況，請先確認過敏史與目前用藥。以上皆為虛構示範資料。",notes:"示範用電子病歷。正式醫療用途請由本人及醫療專業人員確認內容。"},conditions:[["過敏性鼻炎","2022-03","目前穩定；示範資料"],["偏頭痛","2023-08","偶發；示範資料"]],surgery:[["闌尾切除術（示範）","2021-07","恢復良好"]],meds:[["Cetirizine","10 mg","必要時","過敏症狀（示範）"],["Ibuprofen","200 mg","必要時","頭痛（示範）"]],family:[["母親：高血壓","2018","規律追蹤（示範）"],["祖父：糖尿病","—","家族史（示範）"]]};
+function loadDemo(){const d=demoData;fieldMap.forEach(id=>{document.getElementById(id).value=d.fields[id]||""});restoreRows("conditionsList",3,d.conditions);restoreRows("surgeryList",3,d.surgery);restoreRows("medsList",4,d.meds);restoreRows("familyList",3,d.family);updateQuick()}
+const savedLang=localStorage.getItem("pmr-lang")||"zh-TW";document.getElementById("language").value=savedLang;applyLanguage(savedLang);loadData();if(!localStorage.getItem("pocket-medical-record"))loadDemo();
+</script>
+</body>
+</html>
